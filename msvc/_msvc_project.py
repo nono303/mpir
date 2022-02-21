@@ -274,11 +274,10 @@ def gen_vcxproj(path, root_dir, proj_name, guid, config, plat, proj_type,
     </ImportGroup>
 '''
 
-  f5 = r'''<ItemGroup>
+  f5 = r'''  <ItemGroup>
     <None Include="..\..\..\gmp-h.in" />
-    </ItemGroup>
-</Project>
-'''
+  </ItemGroup>
+</Project>'''
 
   relp = split(relpath(root_dir, path))[0] + '\\'
   vsy_path = split(path)[0] + '\\..\\vsyasm.targets'
