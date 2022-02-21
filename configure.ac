@@ -1743,7 +1743,7 @@ AC_SUBST(CCAS)
 MPIR_AS=""
 if test -z "$with_yasm"; then
   echo "Looking for a system-wide yasm..."
-  MPIR_AS=`which yasm`
+  MPIR_AS=`command -v yasm`
   if test $? -ne 0; then
     AC_MSG_ERROR([no system-wide yasm found])
   fi
@@ -1940,12 +1940,9 @@ Use "--disable-static --enable-shared" to build just a DLL.])
     #
     # LDFLAGS="$LDFLAGS -Wl,--enable-auto-import"  this is too general
     if test "$enable_shared" = yes; then
-      GMP_LDFLAGS="$GMP_LDFLAGS -no-undefined"
-      if test "$with_gnu_ld" = yes; then
-        GMP_LDFLAGS="$GMP_LDFLAGS -Wl,--export-all-symbols"
-        LIBGMP_LDFLAGS="$LIBGMP_LDFLAGS -Wl,--output-def,.libs/libmpir-3.dll.def"
-        LIBGMPXX_LDFLAGS="$LIBGMP_LDFLAGS -Wl,--output-def,.libs/libmpirxx-3.dll.def"
-      fi
+      GMP_LDFLAGS="$GMP_LDFLAGS -no-undefined -Wl,--export-all-symbols"
+      LIBGMP_LDFLAGS="$LIBGMP_LDFLAGS -Wl,--output-def,.libs/libmpir-3.dll.def"
+      LIBGMPXX_LDFLAGS="$LIBGMP_LDFLAGS -Wl,--output-def,.libs/libmpirxx-3.dll.def"
       LIBGMP_DLL=1
     fi
     ;;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0.25914.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.32.31114" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -11,19 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
+    <TargetSuffix>_sandybridge</TargetSuffix>
     <RootNamespace>mpir</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{A2436635-0979-4422-9125-E4C9AEF03CC4}</ProjectGuid>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectGuid>{C96245F8-DBB4-472D-8D20-146C837BB68B}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
@@ -33,63 +34,71 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
-    <Import Project="..\..\mpir_release_lib.props" />
+    <Import Project="..\..\mpir_release_dll.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
-    <Import Project="..\..\mpir_debug_lib.props" />
+    <Import Project="..\..\mpir_debug_dll.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mpir</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mpir</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">mpir$(TargetSuffix)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">mpir$(TargetSuffix)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PreBuildEvent>
-      <Command>cd ..\..\
-prebuild skylake\avx x64 22
+      <Command>..\..\prebuild sandybridge x64 22 $(Configuration)
       </Command>
     </PreBuildEvent>
     <YASM>
-      <Defines>
-      </Defines>
+      <Defines>DLL</Defines>
       <IncludePaths>..\..\..\mpn\x86_64w\</IncludePaths>
       <Debug>true</Debug>
       <ObjectFile>$(IntDir)mpn\%(FileName).obj</ObjectFile>
     </YASM>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;WIN32;_LIB;HAVE_CONFIG_H;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <PreprocessorDefinitions>NDEBUG;WIN32;HAVE_CONFIG_H;MSC_BUILD_DLL;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
     <PostBuildEvent>
       <Command>cd ..\..\
-postbuild "$(TargetPath)" 22
+postbuild "$(TargetPath)" 22 "$(TargetSuffix)"
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PreBuildEvent>
-      <Command>cd ..\..\
-prebuild skylake\avx x64 22
+      <Command>..\..\prebuild sandybridge x64 22 $(Configuration)
       </Command>
     </PreBuildEvent>
     <YASM>
-      <Defines>
-      </Defines>
+      <Defines>DLL</Defines>
       <IncludePaths>..\..\..\mpn\x86_64w\</IncludePaths>
       <Debug>true</Debug>
       <ObjectFile>$(IntDir)mpn\%(FileName).obj</ObjectFile>
     </YASM>
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;WIN32;_LIB;HAVE_CONFIG_H;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <PreprocessorDefinitions>_DEBUG;WIN32;HAVE_CONFIG_H;MSC_BUILD_DLL;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
     <PostBuildEvent>
       <Command>cd ..\..\
-postbuild "$(TargetPath)" 22
+postbuild "$(TargetPath)" 22 "$(TargetSuffix)"
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -458,9 +467,21 @@ postbuild "$(TargetPath)" 22
     <ClCompile Include="..\..\..\scanf\vfscanf.c" />
     <ClCompile Include="..\..\..\scanf\vscanf.c" />
     <ClCompile Include="..\..\..\scanf\vsscanf.c" />
+    <ClCompile Include="..\..\..\cxx\dummy.cc" />
+    <ClCompile Include="..\..\..\cxx\isfuns.cc" />
+    <ClCompile Include="..\..\..\cxx\ismpf.cc" />
+    <ClCompile Include="..\..\..\cxx\ismpq.cc" />
+    <ClCompile Include="..\..\..\cxx\ismpz.cc" />
+    <ClCompile Include="..\..\..\cxx\ismpznw.cc" />
+    <ClCompile Include="..\..\..\cxx\osdoprnti.cc" />
+    <ClCompile Include="..\..\..\cxx\osfuns.cc" />
+    <ClCompile Include="..\..\..\cxx\osmpf.cc" />
+    <ClCompile Include="..\..\..\cxx\osmpq.cc" />
+    <ClCompile Include="..\..\..\cxx\osmpz.cc" />
     <ClCompile Include="..\..\..\mpn\generic\add.c" />
     <ClCompile Include="..\..\..\mpn\generic\add_1.c" />
     <ClCompile Include="..\..\..\mpn\generic\addadd_n.c" />
+    <ClCompile Include="..\..\..\mpn\generic\addsub_n.c" />
     <ClCompile Include="..\..\..\mpn\generic\bdivmod.c" />
     <ClCompile Include="..\..\..\mpn\generic\binvert.c" />
     <ClCompile Include="..\..\..\mpn\generic\cmp.c" />
@@ -554,6 +575,8 @@ postbuild "$(TargetPath)" 22
     <ClCompile Include="..\..\..\mpn\generic\sqrtrem.c" />
     <ClCompile Include="..\..\..\mpn\generic\sub.c" />
     <ClCompile Include="..\..\..\mpn\generic\sub_1.c" />
+    <ClCompile Include="..\..\..\mpn\generic\subadd_n.c" />
+    <ClCompile Include="..\..\..\mpn\generic\sumdiff_n.c" />
     <ClCompile Include="..\..\..\mpn\generic\tdiv_q.c" />
     <ClCompile Include="..\..\..\mpn\generic\tdiv_qr.c" />
     <ClCompile Include="..\..\..\mpn\generic\toom3_mul.c" />
@@ -577,69 +600,63 @@ postbuild "$(TargetPath)" 22
     <ClCompile Include="..\..\..\mpn\generic\zero_p.c" />
   </ItemGroup>
   <ItemGroup>
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\add_err1_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\add_err2_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\add_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\addlsh1_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\addmul_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\addmul_2.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\addsub_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\and_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\andn_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\com_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\copyd.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\copyi.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\divexact_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\divexact_by3c.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\divexact_byff.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\divexact_byfobm1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\divrem_2.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\divrem_euclidean_qr_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\divrem_euclidean_qr_2.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\divrem_hensel_qr_1_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\hamdist.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\ior_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\iorn_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\karaadd.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\karasub.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\lshift.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\lshift1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\lshiftc.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\mod_1_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\mod_1_2.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\mod_1_3.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\modexact_1c_odd.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\mul_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\mul_2.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\mul_basecase.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\mullow_n_basecase.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\mulmid_basecase.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\nand_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\nior_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\popcount.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\redc_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\rsh_divrem_hensel_qr_1_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\rsh_divrem_hensel_qr_1_2.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\rshift.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\rshift1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\sqr_basecase.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\store.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\sub_err1_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\sub_err2_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\sub_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\subadd_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\sublsh1_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\submul_1.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\sumdiff_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\udiv_qrnnd.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\umul_ppmm.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\xnor_n.asm" />
-    <YASM Include="..\..\..\mpn\x86_64w\skylake\avx\xor_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/add_err1_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/add_err2_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/add_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/addmul_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/addmul_2.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/and_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/andn_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/com_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/copyd.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/copyi.asm" />
+    <YASM Include="../../../mpn/x86_64w/divexact_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/divexact_by3c.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/divexact_byff.asm" />
+    <YASM Include="../../../mpn/x86_64w/divexact_byfobm1.asm" />
+    <YASM Include="../../../mpn/x86_64w/divrem_2.asm" />
+    <YASM Include="../../../mpn/x86_64w/divrem_euclidean_qr_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/divrem_euclidean_qr_2.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/divrem_hensel_qr_1_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/hamdist.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/ior_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/iorn_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/karaadd.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/karasub.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/lshift.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/lshift1.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/lshiftc.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/mod_1_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/mod_1_2.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/mod_1_3.asm" />
+    <YASM Include="../../../mpn/x86_64w/modexact_1c_odd.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/mul_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/mul_2.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/mul_basecase.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/mullow_n_basecase.asm" />
+    <YASM Include="../../../mpn/x86_64w/mulmid_basecase.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/nand_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/nior_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/popcount.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/redc_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/rsh_divrem_hensel_qr_1_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/rsh_divrem_hensel_qr_1_2.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/rshift.asm" />
+    <YASM Include="../../../mpn/x86_64w/sqr_basecase.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/store.asm" />
+    <YASM Include="../../../mpn/x86_64w/sub_err1_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sub_err2_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/sub_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/submul_1.asm" />
+    <YASM Include="../../../mpn/x86_64w/udiv_qrnnd.asm" />
+    <YASM Include="../../../mpn/x86_64w/umul_ppmm.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/xnor_n.asm" />
+    <YASM Include="../../../mpn/x86_64w/sandybridge/xor_n.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\vsyasm.targets" />
-  </ImportGroup>
+    </ImportGroup>
   <ItemGroup>
     <None Include="..\..\..\gmp-h.in" />
   </ItemGroup>

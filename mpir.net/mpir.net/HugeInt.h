@@ -1674,11 +1674,12 @@ namespace MPIR
             /// </summary>
             /// <param name="exp">variable to store the exponent in.</param>
             /// <returns>The mantissa of the value as a double, possibly truncated.</returns>
-            double ToDouble([Out] mpir_si% exp)
+            double ToDouble([Out] mp_exp_t% exp) 
             { 
-                double result;
-                exp = MP(get_2exp_d)(&result, _value);
-                return result;
+                mp_exp_t x; 
+                auto result = MP(get_d_2exp)(&x, _value); 
+                exp = x; 
+                return result; 
             }
 
             #pragma endregion
