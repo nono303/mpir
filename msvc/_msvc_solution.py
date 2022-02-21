@@ -120,7 +120,7 @@ class msvc_solution(object):
 
     vs_str = sol_11.format(vs_info['solution'], vs_info['visual studio'])
     if int(vs_info['msvc']) > 12:
-      vs_str += sol_12.format(vs_info['msvc_long'])
+      vs_str += sol_12.format(vs_info['vs_long'])
 
     with open(join(self.soln_path, self.soln_file), 'w') as outf:
       outf.write(vs_str)
