@@ -28,14 +28,14 @@ namespace MPIR.Tests.HugeFloatTests
     [TestClass]
     public class Precision
     {
-        [TestInitialize]
-        public void Setup()
+        [ClassInitialize]
+        public static void Setup(TestContext context)
         {
             HugeFloat.DefaultPrecision = 128;
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        [ClassCleanup]
+        public static void Cleanup()
         {
             HugeFloat.DefaultPrecision = 64;
         }
