@@ -12,6 +12,7 @@ class Project_Type(IntEnum):
 
 app_ext = ('.exe', '.lib', '.dll')
 app_str = ('Application', 'StaticLibrary', 'DynamicLibrary')
+app_suf = ('', '_static', '')
 
 def vcx_proj_cfg(plat, outf):
 
@@ -30,16 +31,21 @@ def vcx_proj_cfg(plat, outf):
       outf.write(f2.format(pl, conf))
   outf.write(f3)
 
-def vcx_globals(name, guid, vs_info, outf):
+def vcx_globals(name, guid, vs_info, outf,conf,proj_type):
 
   f1 = r'''  <PropertyGroup Label="Globals">
-    <RootNamespace>{0:s}</RootNamespace>
+    <TargetSuffix>{0:s}</TargetSuffix>
+    <RootNamespace>{1:s}</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{1:s}</ProjectGuid>
-    <WindowsTargetPlatformVersion>{2:s}</WindowsTargetPlatformVersion>
+    <ProjectGuid>{2:s}</ProjectGuid>
+    <WindowsTargetPlatformVersion>{3:s}</WindowsTargetPlatformVersion>
   </PropertyGroup>
 '''
-  outf.write(f1.format(name, guid, vs_info['windows_sdk']))
+  if not conf:
+    targetsuf = app_suf[proj_type]
+  else:
+    targetsuf = "_" + conf.replace("\\","-") + app_suf[proj_type]
+  outf.write(f1.format(targetsuf, name, guid, vs_info['windows_sdk']))
 
 def vcx_default_cpp_props(outf):
 
@@ -89,7 +95,7 @@ def vcx_target_name_and_dirs(name, plat, proj_type, outf):
   f1 = r'''  <PropertyGroup>
     <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
 '''
-  f2 = r'''    <TargetName Condition="'$(Configuration)|$(Platform)'=='{1:s}|{0:s}'">{2:s}</TargetName>
+  f2 = r'''    <TargetName Condition="'$(Configuration)|$(Platform)'=='{1:s}|{0:s}'">{2:s}$(TargetSuffix)</TargetName>
 '''
   f3 = r'''  </PropertyGroup>
 '''
@@ -111,13 +117,16 @@ def yasm_options(plat, proj_type, outf):
 
   outf.write(f1.format('DLL' if proj_type == Project_Type.DLL else '', '' if plat == 'Win32' else '_64'))
 
-def compiler_options(plat, proj_type, is_debug, is_avx2, outf):
+def compiler_options(plat, proj_type, is_debug, avx, outf):
 
   f1 = r'''    <ClCompile>
       <AdditionalIncludeDirectories>..\..\..\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>{0:s}%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
 '''
-  f2 = r'''      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+  f2 = r'''      <EnableEnhancedInstructionSet>{0:s}</EnableEnhancedInstructionSet>
 '''
   f3 = r'''    </ClCompile>
 '''
@@ -126,44 +135,52 @@ def compiler_options(plat, proj_type, is_debug, is_avx2, outf):
   if proj_type == Project_Type.DLL:
     s1 = 'DEBUG;WIN32;HAVE_CONFIG_H;MSC_BUILD_DLL;'
   elif proj_type == Project_Type.LIB:
-    s1 = 'DEBUG;WIN32;_LIB;HAVE_CONFIG_H;'
+    s1 = 'DEBUG;WIN32;HAVE_CONFIG_H;_LIB;'
   else:
     pass
   if plat == 'x64':
     s1 = s1 + '_WIN64;'
   s1 = ('_' if is_debug else 'N') + s1
   outf.write(f1.format(s1))
-  if is_avx2:
-    outf.write(f2)
+  if avx:
+    outf.write(f2.format(avx))
   outf.write(f3)
 
-def linker_options(outf):
+def linker_options(outf,proj_type):
 
-  f1 = r'''    <Link>
+  if proj_type == Project_Type.LIB:
+    f1 = r'''    <Lib>
+      <LinkTimeCodeGeneration>true</LinkTimeCodeGeneration>
+    </Lib>
+'''
+    outf.write(f1)
+
+  if proj_type == Project_Type.DLL:
+    f1 = r'''    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
 '''
-  outf.write(f1)
+    outf.write(f1)
 
 def vcx_pre_build(name, plat, vs_info, outf):
 
   f1 = r'''    <PreBuildEvent>
-      <Command>cd ..\..\
-prebuild {0:s} {1:s} {2:s}
+      <Command>..\..\prebuild {0:s} {1:s} {2:s} $(Configuration)
       </Command>
     </PreBuildEvent>
 '''
-  outf.write(f1.format(name, plat, vs_info['visual studio']))
+  outf.write(f1.format(name, plat, vs_info['vs_dir']))
 
 def vcx_post_build(is_cpp, vs_info, outf):
 
   f1 = r'''    <PostBuildEvent>
       <Command>cd ..\..\
-postbuild "$(TargetPath)" {0:s}
+postbuild "$(TargetPath)" {0:s} "$(TargetSuffix)"
       </Command>
     </PostBuildEvent>
 '''
 
-  outf.write(f1.format(vs_info['visual studio']))
+  outf.write(f1.format(vs_info['vs_dir']))
 
 def vcx_tool_options(config, plat, proj_type, is_cpp, af_list, add_prebuild, vs_info, outf):
 
@@ -171,6 +188,12 @@ def vcx_tool_options(config, plat, proj_type, is_cpp, af_list, add_prebuild, vs_
 '''
   f2 = r'''  </ItemDefinitionGroup>
 '''
+# AVX: according to https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
+  avx = ''
+  if config.endswith('\\avx'):
+    avx = 'AdvancedVectorExtensions2'
+  elif config == 'sandybridge' or config == 'skylake' or config == 'haswell' or config == 'broadwell' or config == 'bulldozer' :
+    avx = 'AdvancedVectorExtensions'
   for pl in plat:
     for is_debug in (False, True):
       outf.write(f1.format(pl, 'Debug' if is_debug else 'Release'))
@@ -178,9 +201,8 @@ def vcx_tool_options(config, plat, proj_type, is_cpp, af_list, add_prebuild, vs_
         vcx_pre_build(config, pl, vs_info, outf)
       if af_list:
         yasm_options(pl, proj_type, outf)
-      compiler_options(pl, proj_type, is_debug, config.endswith('\\avx'), outf)
-      if proj_type != Project_Type.LIB:
-        linker_options(outf)
+      compiler_options(pl, proj_type, is_debug, avx, outf)
+      linker_options(outf,proj_type)
       vcx_post_build(is_cpp, vs_info, outf)
       outf.write(f2)
 
@@ -234,7 +256,7 @@ def vcx_a_items(af_list, relp, outf):
 '''
   outf.write(f1)
   for nxd in af_list:
-    outf.write(f2.format(relp, nxd))
+    outf.write(f2.format(relp, nxd).replace("\\","/"))
   outf.write(f3)
 
 def gen_vcxproj(path, root_dir, proj_name, guid, config, plat, proj_type,
@@ -264,7 +286,7 @@ def gen_vcxproj(path, root_dir, proj_name, guid, config, plat, proj_type,
   with open(path, 'w') as outf:
     outf.write(f1.format(vs_info['vcx_tool']))
     vcx_proj_cfg(plat, outf)
-    vcx_globals(proj_name, guid, vs_info, outf)
+    vcx_globals(proj_name, guid, vs_info, outf, config, proj_type)
     vcx_default_cpp_props(outf)
     vcx_library_type(plat, proj_type, vs_info, outf)
     vcx_cpp_props(outf)
