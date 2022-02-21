@@ -1,7 +1,7 @@
 @echo off
 rem %1 = directory holding config data (in cdata)
 
-echo creating config.h from %1
+echo creating config.h from %1cfg.h
 
 if not exist cfg.h (call :seterr & echo   config.h couldn't be built because cfg.h is missing & exit /b %errorlevel%)
 
