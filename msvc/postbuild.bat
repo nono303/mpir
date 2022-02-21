@@ -49,7 +49,7 @@ set out_dir="..\build\vs%vs_ver%-%plat%_%conf%%suffix:_static=%\"
 echo %out_dir%
 
 rem output parametrers for the MPIR tests
-if /i "%filename%" EQU "mpir-xx" goto skip
+if /i "%filename:~0,6%" EQU "mpirxx" goto skip
 echo (set ldir=%loc%)   > output_params.bat
 echo (set libr=%extn%) >> output_params.bat
 echo (set plat=%plat%) >> output_params.bat
