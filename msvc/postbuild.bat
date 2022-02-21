@@ -1,9 +1,11 @@
 @echo off
 rem %1 = full target path
 rem %2 = last two digits of the Visual Studio version number (e.g. 17)
+rem %3 = targetname suffix (e.g. -sandybridge,  _static, -sandybridge_static...)
 
 set vs_ver=%2
 set str=%~1
+set suffix=%~3
 
 rem delete anything from the path before the FINAL 'msvc'
 :dele
@@ -43,48 +45,42 @@ call :seterr & echo "postbuild copy error ERROR: target=%tloc%, plat=%plat%, con
 :is2nd:
 rem set the target and final binary output directories
 set tgt_dir="vs%vs_ver%\%loc%%plat%\%conf%\"
-set bin_dir="..\%extn%\%plat%\%conf%\"
-set hdr_dir="..\%extn%\%plat%\%conf%\"
+set out_dir="..\build\vs%vs_ver%-%plat%_%conf%%suffix:_static=%\"
+echo %out_dir%
 
 rem output parametrers for the MPIR tests
-if /i "%filename%" EQU "mpirxx" goto skip
+if /i "%filename%" EQU "mpir-xx" goto skip
 echo (set ldir=%loc%)   > output_params.bat
 echo (set libr=%extn%) >> output_params.bat
 echo (set plat=%plat%) >> output_params.bat
 echo (set conf=%conf%) >> output_params.bat
 :skip
 
-echo copying outputs from %tgt_dir% to %bin_dir%
-if not exist %bin_dir% md %bin_dir%
+echo copying outputs from %tgt_dir% to %out_dir%
+if not exist %out_dir%bin md %out_dir%bin
+if not exist %out_dir%lib md %out_dir%lib
+if not exist %out_dir%include md %out_dir%include
 call :copyh %tgt_dir%
-call :copyh %hdr_dir%
-call :copyb %tgt_dir% %bin_dir% %conf% %extn% %filename%
+call :copyh %out_dir%include\
+call :copyb %tgt_dir% %out_dir% %conf% %extn% %filename% %suffix%
 exit /b 0
 
-rem copy binaries to final bin_dirination directory
+rem copy binaries to final out_dir destination directory
 rem %1 = target (build output) directory
 rem %2 = binary destination directory
 rem %3 = configuration (debug/release)
 rem %4 = library (lib/dll)
 rem %5 = file name
+rem %6 = targetname suffix (e.g. -sandybridge,  _static, -sandybridge_static...)
 :copyb
 if "%4" EQU "dll" (
-	copy %1mpir.dll %2mpir.dll > nul 2>&1
-	copy %1mpir.exp %2mpir.exp > nul 2>&1
-	copy %1mpir.lib %2mpir.lib > nul 2>&1
-	if exist %1mpir.pdb (copy %1mpir.pdb %2mpir.pdb  > nul 2>&1)
+	copy %1mpir%6.dll %2bin\mpir%6.dll > nul 2>&1
+REM	copy %1mpir%6.exp %2mpir%6.exp > nul 2>&1
+	copy %1mpir%6.lib %2lib\mpir%6.lib > nul 2>&1
+	if exist %1mpir%6.pdb (copy %1mpir%6.pdb %2bin\mpir%6.pdb  > nul 2>&1)
 ) else if "%4" EQU "lib" (
-    if "%5" EQU "mpir" (
-  	    if exist %1mpir.lib (
-        copy %1mpir.lib %2mpir.lib > nul 2>&1
-	    if exist %1mpir.pdb (copy %1mpir.pdb %2mpir.pdb > nul 2>&1)
-        )
-    ) else if "%5" EQU "mpirxx" (
-	    if exist %1mpirxx.lib (
-        copy %1mpirxx.lib %2mpirxx.lib > nul 2>&1
-	    if exist %1mpirxx.pdb (copy %1mpirxx.pdb %2mpirxx.pdb > nul 2>&1)
-        )
-    )
+  	    if exist %1%5.lib (copy %1%5.lib %2lib\%5.lib > nul 2>&1)
+	    if exist %1%5.pdb (copy %1%5.pdb %2lib\%5.pdb > nul 2>&1)
 ) else (
 	call :seterr & echo ERROR: illegal library type %4  & exit /b %errorlevel%
 )
@@ -95,13 +91,9 @@ exit /b 0
 
 rem copy headers to final destination directory
 :copyh
-copy ..\config.h %1config.h > nul 2>&1
-copy ..\gmp-mparam.h %1gmp-mparam.h > nul 2>&1
-copy ..\mpir.h %1mpir.h > nul 2>&1
+REM exclude copy of 'config.h' 
+for %%H in (gmp-mparam mpir gmp-impl longlong mpirxx) do (copy ..\%%H.h %1%%H.h > nul 2>&1)
 copy ..\mpir.h %1gmp.h > nul 2>&1
-copy ..\gmp-impl.h %1gmp-impl.h > nul 2>&1
-copy ..\longlong.h %1longlong.h > nul 2>&1
-copy ..\mpirxx.h %1mpirxx.h > nul 2>&1
 copy ..\mpirxx.h %1gmpxx.h > nul 2>&1
 exit /b 0
 
