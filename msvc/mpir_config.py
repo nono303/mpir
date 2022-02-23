@@ -39,6 +39,8 @@ def write_f(ipath, opath):
 vs_version = 22
 if len(argv) > 1:
   vs_version = int(argv[1])
+if len(argv) > 2:
+  n_list = [int(c) for c in argv[2].split(',')]
 
 solution_name = 'mpir.sln'
 build_dir_name = 'vs{0:d}'.format(vs_version)
@@ -51,9 +53,6 @@ path.append(solution_dir)
 write_f(join(build_root_dir, f'version_info{vs_version}.py'),
                             join(solution_dir, 'version_info.py'))
 from version_info import vs_info
-
-if len(argv) > 2:
-  vs_info['windows_sdk'] = argv[2]
 
 # for script debugging
 debug = False
@@ -325,32 +324,32 @@ nd_32 = nd_gc + len(mpn_32)
 nd_nd = nd_32 + len(mpn_64)
 
 # now ask user which builds they wish to generate
-
-while True:
-  cnt = 0
-  for v in sorted(mpn_gc):
-    cnt += 1
-    print('{0:2d}. {1:24s}        '.format(cnt, v.replace('\\', '_')))
-  for v in sorted(mpn_32):
-    cnt += 1
-    print('{0:2d}. {1:24s} (win32)'.format(cnt, v.replace('\\', '_')))
-  for v in sorted(mpn_64):
-    cnt += 1
-    print('{0:2d}. {1:24s}   (x64)'.format(cnt, v.replace('\\', '_')))
-  fs = 'Space separated list of builds (1..{0:d}, 0 to exit)? '
-  s = input(fs.format(cnt))
-  n_list = [int(c) for c in s.split()]
-  if 0 in n_list:
-    exit()
-  if any(n < 1 or n > nd_nd for n in n_list):
-    print('list contains invalid build numbers')
-    sleep(2)
-  else:
-    break
-
-# multiple builds must each have their own prebuilds
-if len(n_list) > 1:
-  add_prebuild = True
+if not 'n_list' in globals():
+  while True:
+    cnt = 0
+    for v in sorted(mpn_gc):
+      cnt += 1
+      print('{0:2d}. {1:24s}        '.format(cnt, v.replace('\\', '_')))
+    for v in sorted(mpn_32):
+      cnt += 1
+      print('{0:2d}. {1:24s} (win32)'.format(cnt, v.replace('\\', '_')))
+    for v in sorted(mpn_64):
+      cnt += 1
+      print('{0:2d}. {1:24s}   (x64)'.format(cnt, v.replace('\\', '_')))
+    fs = 'Space separated list of builds (1..{0:d}, 0 to exit)? '
+    s = input(fs.format(cnt))
+    n_list = [int(c) for c in s.split()]
+    if 0 in n_list:
+      exit()
+    if any(n < 1 or n > nd_nd for n in n_list):
+      print('list contains invalid build numbers')
+      sleep(2)
+    else:
+      break
+  
+  # multiple builds must each have their own prebuilds
+  if len(n_list) > 1:
+    add_prebuild = True
 
 # now generate the requested builds
 
