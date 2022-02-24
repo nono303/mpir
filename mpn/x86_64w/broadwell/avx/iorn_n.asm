@@ -16,7 +16,7 @@
 ;  to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 ;  Boston, MA 02110-1301, USA.
 
-;   (rdi,rcx) = not(rsi,rcx) and (rdx,rcx)
+;   (rdi,rcx) = (rsi,rcx) and not (rdx,rcx)
 
 ; There is no initial pointer alignment lead in code below. The argument
 ; why not is based on some statistical reasoning and measurement points.
@@ -92,21 +92,21 @@ LEAF_PROC   mpn_iorn_n
 
   .Loop:
 
-    vpxor   QLimb0, QLimb1, [Src1P]
-    vpor    QLimb0, QLimb0, [Src2P]
+    vpxor   QLimb0, QLimb1, [Src2P]
+    vpor    QLimb0, QLimb0, [Src1P]
     vmovdqu [ResP], QLimb0
-    vpxor   QLimb0, QLimb1, [Src1P+32]
-    vpor    QLimb0, QLimb0, [Src2P+32]
+    vpxor   QLimb0, QLimb1, [Src2P+32]
+    vpor    QLimb0, QLimb0, [Src1P+32]
     vmovdqu [ResP+32], QLimb0
-    vpxor   QLimb0, QLimb1, [Src1P+64]
-    vpor    QLimb0, QLimb0, [Src2P+64]
+    vpxor   QLimb0, QLimb1, [Src2P+64]
+    vpor    QLimb0, QLimb0, [Src1P+64]
     vmovdqu [ResP+64], QLimb0
-    vpxor   QLimb0, QLimb1, [Src1P+96]
-    vpor    QLimb0, QLimb0, [Src2P+96]
+    vpxor   QLimb0, QLimb1, [Src2P+96]
+    vpor    QLimb0, QLimb0, [Src1P+96]
     vmovdqu [ResP+96], QLimb0
 
-    lea     Src1P, [Src1P+Limb0]
     lea     Src2P, [Src2P+Limb0]
+    lea     Src1P, [Src1P+Limb0]
     lea     ResP, [ResP+Limb0]
 
     add     Size, 4
@@ -123,28 +123,28 @@ LEAF_PROC   mpn_iorn_n
   .PostAVX3:
 
     add     Limb0, 32
-    vpxor   QLimb0, QLimb1, [Src1P+64]
-    vpor    QLimb0, QLimb0, [Src2P+64]
+    vpxor   QLimb0, QLimb1, [Src2P+64]
+    vpor    QLimb0, QLimb0, [Src1P+64]
     vmovdqu [ResP+64], QLimb0
 
   .PostAVX2:
 
     add     Limb0, 32
-    vpxor   QLimb0, QLimb1, [Src1P+32]
-    vpor    QLimb0, QLimb0, [Src2P+32]
+    vpxor   QLimb0, QLimb1, [Src2P+32]
+    vpor    QLimb0, QLimb0, [Src1P+32]
     vmovdqu [ResP+32], QLimb0
 
   .PostAVX1:
 
     add     Limb0, 32
-    vpxor   QLimb0, QLimb1, [Src1P]
-    vpor    QLimb0, QLimb0, [Src2P]
+    vpxor   QLimb0, QLimb1, [Src2P]
+    vpor    QLimb0, QLimb0, [Src1P]
     vmovdqu [ResP], QLimb0
 
   .PostAVX0:
 
-    add     Src1P, Limb0
     add     Src2P, Limb0
+    add     Src1P, Limb0
     add     ResP, Limb0
     add     Count, 4
 
@@ -157,23 +157,23 @@ LEAF_PROC   mpn_iorn_n
 
   .PostGPR3:
 
-    mov     Limb0, [Src1P+16]
+    mov     Limb0, [Src2P+16]
     not     Limb0
-    or      Limb0, [Src2P+16]
+    or      Limb0, [Src1P+16]
     mov     [ResP+16], Limb0
 
   .PostGPR2:
 
-    mov     Limb0, [Src1P+8]
+    mov     Limb0, [Src2P+8]
     not     Limb0
-    or      Limb0, [Src2P+8]
+    or      Limb0, [Src1P+8]
     mov     [ResP+8], Limb0
 
   .PostGPR1:
 
-    mov     Limb0, [Src1P]
+    mov     Limb0, [Src2P]
     not     Limb0
-    or      Limb0, [Src2P]
+    or      Limb0, [Src1P]
     mov     [ResP], Limb0
 
   .Exit:

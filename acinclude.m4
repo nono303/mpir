@@ -589,9 +589,9 @@ extern
 #endif
 __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
 {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
-void f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;
+f(){static const struct{t1 n;t1 src[9];t1 want[9];}d[]={{1,{0},{1}},};t1 got[9];int i;
 for(i=0;i<1;i++){if(e(got,got,9,d[i].n)==0)h();g(i,d[i].src,d[i].n,got,d[i].want,9);if(d[i].n)h();}}
-void h(){} void g(){}
+h(){}g(){}
 #else
 int dummy;
 #endif
@@ -603,9 +603,8 @@ GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 2],
    1666 to get an ICE with -O1 -mpowerpc64.  */
 
 #ifdef __GNUC__
-extern int g();
-void f(int u){int i;long long x;x=u?~0:0;if(x)for(i=0;i<9;i++);x&=g();if(x)g();}
-int g(){return 0;}
+f(int u){int i;long long x;x=u?~0:0;if(x)for(i=0;i<9;i++);x&=g();if(x)g();}
+g(){}
 #else
 int dummy;
 #endif
@@ -3324,11 +3323,11 @@ check (va_alist)
   ret = vsnprintf (buf, 4, fmt, ap);
 
   if (strcmp (buf, "hel") != 0)
-    return 1;
+    exit (1);
 
   /* allowed return values */
   if (ret != -1 && ret != 3 && ret != 11)
-    return 2;
+    exit (2);
 
   return 0;
 }
@@ -3337,7 +3336,7 @@ int
 main ()
 {
 $i
-  return 0;
+  exit (0);
 }
 ],
       [:],
@@ -3470,7 +3469,7 @@ cat >conftest.c <<EOF
 int
 main ()
 {
-  return 0;
+  exit(0);
 }
 EOF
 gmp_compile="$1 conftest.c"
@@ -3544,7 +3543,7 @@ AC_CACHE_CHECK([for build system executable suffix],
 int
 main ()
 {
-  return 0;
+  exit (0);
 }
 EOF
 for i in .exe ,ff8 ""; do
@@ -3578,7 +3577,7 @@ AC_CACHE_CHECK([whether build system compiler is ANSI],
 int
 main (int argc, char *argv[])
 {
-  return 0;
+  exit(0);
 }
 EOF
 gmp_compile="$CC_FOR_BUILD conftest.c"
@@ -3609,11 +3608,10 @@ AC_DEFUN([GMP_CHECK_LIBM_FOR_BUILD],
 AC_CACHE_CHECK([for build system compiler math library],
                gmp_cv_check_libm_for_build,
 [cat >conftest.c <<EOF
-#include <math.h>
 int
 main ()
 {
-  return 0;
+  exit(0);
 }
 double d;
 double
