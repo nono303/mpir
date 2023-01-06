@@ -107,11 +107,9 @@ along with the GNU MP Library.  If not, see http://www.gnu.org/licenses/.  */
   || defined (_MSC_VER)                                 \
   || defined (_WIN32)
 #define __GMP_HAVE_CONST        1
-#define __GMP_HAVE_PROTOTYPES   1
 #define __GMP_HAVE_TOKEN_PASTE  1
 #else
 #define __GMP_HAVE_CONST        0
-#define __GMP_HAVE_PROTOTYPES   0
 #define __GMP_HAVE_TOKEN_PASTE  0
 #endif
 
