@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 22
-VisualStudioVersion = 19.20.27027.1
+VisualStudioVersion = 19.30.30401
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dll_mpir_gc", "dll_mpir_gc\dll_mpir_gc.vcxproj", "{6322DE11-2109-42FA-9179-333322FE30C6}"
 EndProject

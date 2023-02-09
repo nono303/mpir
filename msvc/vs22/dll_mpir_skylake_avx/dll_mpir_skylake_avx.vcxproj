@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0.25914.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="19.30.30401" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
@@ -652,8 +652,8 @@ postbuild "$(TargetPath)" 22
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\vsyasm.targets" />
-  </ImportGroup>
-  <ItemGroup>
+    </ImportGroup>
+<ItemGroup>
     <None Include="..\..\..\gmp-h.in" />
-  </ItemGroup>
+    </ItemGroup>
 </Project>
